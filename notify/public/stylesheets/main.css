@@ -1,0 +1,19 @@
+h1 {
+    background-color: #6666aa;
+    color: #ccccff;
+}
+input#subject {
+    width: 280px;
+}
+textarea#summary {
+    width: 280px;
+}
+dl {
+  margin-bottom: 5px !important;
+}
+dt,dd {
+  line-height: 1 !important;
+}
+ul {
+  padding-left: 20px !important;
+}

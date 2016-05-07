@@ -1,0 +1,48 @@
+@(message: String, notificationsSent: List[models.Notification], notificationsSentNotYet: List[models.Notification]
+  , form1: Form[NotificationForm])(implicit messages: Messages)
+
+@main("登録画面") {
+<div class="container">
+<h1>登録画面</h1>
+<p>@message</p>
+<ul>
+    @for(notification <- notificationsSentNotYet) {
+    <li>
+        <a href="/notification/@notification.id"> @notification.subject </a>
+    </li>
+    }
+</ul>
+<hr>
+<p>
+@helper.form(action=routes.Application.postNotify) {
+@(helper.inputText (
+field = form1("db.subject"),
+'_label -> "件名"
+))
+@helper.input(form1("db.actionDate"), '_label -> "日時") { (id, name, value, args) =>
+<input type="datetime-local" name="@name" id="@id" value="@value" @toHtmlArgs(args)>
+}
+@(helper.select (
+field = form1("db.notifyBefore"),
+options = Seq("5" -> "5分前", "10" -> "10分前", "15" -> "15分前", "20" -> "20分前"
+, "30" -> "30分前", "45" -> "45分前", "60" -> "1時間前"),
+args = 'size -> 1,
+'_label -> "通知"
+))
+@(helper.textarea (
+field = form1("db.summary"),
+'_label -> "説明"
+))
+<button>登録</button>
+}
+</p>
+<hr>
+<ul>
+    @for(notification <- notificationsSent) {
+    <li>
+        <a href="/notification/@notification.id"> @notification.subject </a>
+    </li>
+    }
+</ul>
+</div>
+}
