@@ -2,12 +2,11 @@ package actors
 
 import dao.NotificationDAO
 import akka.actor._
-import javax.inject.Inject
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.mailer.{MailerClient, Email}
 import com.typesafe.config.ConfigFactory
 
-import play.Logger
+import play.api.Logger
 
 object NotifyActor {
   def props(dao: NotificationDAO, mc: MailerClient) = Props(classOf[NotifyActor], dao, mc)
@@ -45,8 +44,7 @@ class NotifyActor(dao: NotificationDAO, mc: MailerClient) extends Actor {
               "\n" +
               "[説明]" +
               "\n" +
-              notification.summary),
-            bodyHtml = Some("")
+              notification.summary)
           )
           mc.send(email)
           Logger.info("Mail sent")

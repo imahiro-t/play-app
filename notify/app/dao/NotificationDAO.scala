@@ -12,7 +12,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import slick.driver.JdbcProfile
 
 @Singleton
-class NotificationDAO @Inject()(val dbConfigProvider: DatabaseConfigProvider) {
+class NotificationDAO @Inject()(dbConfigProvider: DatabaseConfigProvider) {
 
   val dbConfig = dbConfigProvider.get[JdbcProfile]
 
