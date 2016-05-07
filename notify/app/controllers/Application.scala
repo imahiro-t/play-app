@@ -54,7 +54,6 @@ class Application @Inject() (val messagesApi: MessagesApi, dao: NotificationDAO)
   def postNotify = Action.async { implicit request =>
     notificationForm.bindFromRequest.fold(
       formWithErrors => {
-        Logger.info("form error")
         dao.getNotificationsSent().flatMap(
           notificationsSent => dao.getNotificationsSentNotYet().map(
             notificationsSentNotYet => BadRequest(views.html.notifications("", notificationsSent, notificationsSentNotYet, formWithErrors))
