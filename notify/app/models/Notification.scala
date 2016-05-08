@@ -1,13 +1,12 @@
 package models
 
-import java.util.Date
-
 case class Notification (
   id: Option[Long],
   subject: String,
-  actionDate: Date,
+  actionDate: java.sql.Date,
+  actionTime: java.sql.Time,
   notifyBefore: Int,
   summary: String,
-  notificationDate: Date,
+  notificationDate: java.util.Date,
   sent: Boolean
 )

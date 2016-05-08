@@ -6,13 +6,14 @@ import dao.NotificationDAO
 import models.Notification
 
 import java.util.Date
+import java.sql.Time
 
 import javax.inject.Inject
 import javax.inject.Singleton
 
 import play.api.data.Form
 import play.api.data.Forms.mapping
-import play.api.data.Forms.{longNumber,text,date,number,nonEmptyText,optional}
+import play.api.data.Forms.{longNumber,text,date,number,nonEmptyText,optional,sqlDate}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.Action
 import play.api.mvc.Controller
@@ -34,14 +35,24 @@ class Application @Inject() (val messagesApi: MessagesApi, dao: NotificationDAO)
         mapping(
           "id" -> optional(longNumber),
           "subject" -> nonEmptyText,
-          "actionDate" -> date("yyyy-MM-dd'T'HH:mm"),
+          "actionDate" -> sqlDate("yyyy-MM-dd"),
+          "actionTime" -> date("HH:mm"),
           "notifyBefore" -> number,
           "summary" -> text
         )
-        ((id, subject, actionDate, notifyBefore, summary) => new Notification(id, subject, actionDate, notifyBefore, summary, new Date, false))
-        ((n: Notification) => Some((n.id, n.subject, n.actionDate, n.notifyBefore, n.summary)))
+        ((id, subject, actionDate, actionTime, notifyBefore, summary)
+          => new Notification(id, subject, actionDate, actionTime, notifyBefore, summary, new Date, false))
+        ((n: Notification) => Some((n.id, n.subject, n.actionDate, n.actionTime, n.notifyBefore, n.summary)))
     )(NotificationForm.apply)(NotificationForm.unapply)
   )
+
+  implicit def dateToTimeConverter(date: Date): Time = {
+    new Time(date.getTime())
+  }
+
+  implicit def timeToDateConverter(time: Time): Date = {
+    new Date(time.getTime())
+  }
 
   def getNotify = Action.async {
     dao.getNotificationsSent().flatMap(

@@ -1,35 +1,39 @@
-@(message: String, form1: Form[NotificationForm])(implicit messages: Messages)
+@(message: String, myForm: Form[NotificationForm])(implicit messages: Messages)
 
 @main("編集画面") {
 <div class="container">
 <h1>編集画面</h1>
 <p>@message</p>
 <p>
-@helper.form(action=routes.Application.postNotification(form1("db.id").value.getOrElse("0").toLong)) {
-<input type="hidden" name="command" value="update">
-<input type="hidden" name="db.id" value="@form1("db.id").value">
-@(helper.inputText (
-field = form1("db.subject"),
-'_label -> "件名"
-))
-@helper.input(form1("db.actionDate"), '_label -> "日時") { (id, name, value, args) =>
-<input type="datetime-local" name="@name" id="@id" value="@value" @toHtmlArgs(args)>
-}
-@(helper.select (
-field = form1("db.notifyBefore"),
-options = Seq("5" -> "5分前", "10" -> "10分前", "15" -> "15分前", "20" -> "20分前"
-, "30" -> "30分前", "45" -> "45分前", "60" -> "1時間前"),
-args = 'size -> 1,
-'_label -> "通知"
-))
-@(helper.textarea (
-field = form1("db.summary"),
-'_label -> "説明"
-))
-<div>
-<input type="submit" value="更新">
-<input type="button" value="削除" onclick="if (confirm('削除しますか?')) {this.form.command.value = 'delete';this.form.submit();}">
-</div>
+@helper.form(action=routes.Application.postNotification(myForm("db.id").value.getOrElse("0").toLong)) {
+    <input type="hidden" name="command" value="update">
+    <input type="hidden" name="db.id" value="@myForm("db.id").value">
+    @(helper.inputText (
+        field = myForm("db.subject"),
+        '_label -> "件名"
+    ))
+    @(helper.inputDate(
+        field = myForm("db.actionDate"),
+        '_label -> "日付"
+    ))
+    @helper.input(myForm("db.actionTime"), '_label -> "時間") { (id, name, value, args) =>
+        <input type="time" name="@name" id="@id" value="@value" @toHtmlArgs(args)>
+    }
+    @(helper.select (
+        field = myForm("db.notifyBefore"),
+        options = Seq("5" -> "5分前", "10" -> "10分前", "15" -> "15分前", "20" -> "20分前"
+        , "30" -> "30分前", "45" -> "45分前", "60" -> "1時間前"),
+        args = 'size -> 1,
+        '_label -> "通知"
+    ))
+    @(helper.textarea (
+        field = myForm("db.summary"),
+        '_label -> "説明"
+    ))
+    <div>
+        <input type="submit" value="更新">
+        <input type="button" value="削除" onclick="if (confirm('削除しますか?')) {this.form.command.value = 'delete';this.form.submit();}">
+    </div>
 }
 </p>
 <hr>

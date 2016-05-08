@@ -3,6 +3,7 @@ package dao
 import scala.concurrent.Future
 import java.util.Date
 import java.util.Calendar
+import java.sql.Time
 import java.sql.Timestamp
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +19,7 @@ class NotificationDAO @Inject()(dbConfigProvider: DatabaseConfigProvider) {
 
   import dbConfig.driver.api._
 
-  implicit def javaDateMapper = MappedColumnType.base[Date, Timestamp](
+  implicit def javaDateTimestampMapper = MappedColumnType.base[Date, Timestamp](
     dt => new Timestamp(dt.getTime),
     ts => new Date(ts.getTime)
   )
@@ -26,12 +27,13 @@ class NotificationDAO @Inject()(dbConfigProvider: DatabaseConfigProvider) {
   private class NotificationTable(tag: Tag) extends Table[Notification](tag, "notification") {
     def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
     def subject = column[String]("subject")
-    def actionDate = column[Date]("action_date")
+    def actionDate = column[java.sql.Date]("action_date")
+    def actionTime = column[java.sql.Time]("action_time")
     def notifyBefore = column[Int]("notify_before")
     def summary = column[String]("summary")
     def notificationDate = column[Date]("notification_date")
     def sent = column[Boolean]("sent", O.Default(false))
-    def * = (id.?, subject, actionDate, notifyBefore, summary, notificationDate, sent) <> ((Notification.apply _).tupled, Notification.unapply)
+    def * = (id.?, subject, actionDate, actionTime, notifyBefore, summary, notificationDate, sent) <> ((Notification.apply _).tupled, Notification.unapply)
   }
 
   private val notifications = TableQuery[NotificationTable]
@@ -46,7 +48,7 @@ class NotificationDAO @Inject()(dbConfigProvider: DatabaseConfigProvider) {
 
   def create(notification: Notification): Future[Int] = {
     val n = notification.copy(
-      notificationDate = calcNotificationDate(notification.actionDate, notification.notifyBefore),
+      notificationDate = calcNotificationDate(notification.actionDate, notification.actionTime, notification.notifyBefore),
       sent = false
     )
     dbConfig.db.run(notifications += n)
@@ -57,6 +59,7 @@ class NotificationDAO @Inject()(dbConfigProvider: DatabaseConfigProvider) {
       n => (
         n.subject,
         n.actionDate,
+        n.actionTime,
         n.notifyBefore,
         n.summary,
         n.notificationDate,
@@ -65,9 +68,10 @@ class NotificationDAO @Inject()(dbConfigProvider: DatabaseConfigProvider) {
     ).update(
       notification.subject,
       notification.actionDate,
+      notification.actionTime,
       notification.notifyBefore,
       notification.summary,
-      calcNotificationDate(notification.actionDate, notification.notifyBefore),
+      calcNotificationDate(notification.actionDate, notification.actionTime, notification.notifyBefore),
       false
      )
     )
@@ -82,9 +86,13 @@ class NotificationDAO @Inject()(dbConfigProvider: DatabaseConfigProvider) {
   def delete(id: Long): Future[Int] =
     dbConfig.db.run(notifications.filter(_.id === id).delete)
 
-  private def calcNotificationDate(actionDate: Date, notifyBefore: Int): Date = {
+  private def calcNotificationDate(actionDate: java.sql.Date, actionTime: Time, notifyBefore: Int): Date = {
     val cl = Calendar.getInstance
-    cl.setTime(actionDate)
+    val clTmp = Calendar.getInstance
+    cl.setTimeInMillis(actionDate.getTime())
+    clTmp.setTimeInMillis(actionTime.getTime())
+    cl.set(Calendar.HOUR_OF_DAY, clTmp.get(Calendar.HOUR_OF_DAY))
+    cl.set(Calendar.MINUTE, clTmp.get(Calendar.MINUTE))
     cl.add(Calendar.MINUTE, -notifyBefore)
     cl.getTime
   }

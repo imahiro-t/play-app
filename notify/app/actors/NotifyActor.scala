@@ -20,12 +20,12 @@ class NotifyActor(dao: NotificationDAO, mc: MailerClient) extends Actor {
 
   def receive = {
     case "NOTIFY" =>
-      Logger.info((new java.util.Date).toString)
-      Logger.info("Message(NOTIFY) received")
+      Logger.debug((new java.util.Date).toString)
+      Logger.debug("Message(NOTIFY) received")
       dao.getSendList().map { notifications =>
-        Logger.info("notifications.size -> " + notifications.size)
+        Logger.debug("notifications.size -> " + notifications.size)
         for (notification <- notifications) {
-          Logger.info("notification.id -> " + notification.id)
+          Logger.debug("notification.id -> " + notification.id)
           val email = Email(
             notification.subject,
             mailFrom,
@@ -34,9 +34,13 @@ class NotifyActor(dao: NotificationDAO, mc: MailerClient) extends Actor {
               "\n" +
               notification.subject +
               "\n" +
-              "[日時]" +
+              "[日付]" +
               "\n" +
               notification.actionDate +
+              "\n" +
+              "[時間]" +
+              "\n" +
+              notification.actionTime +
               "\n" +
               "[通知]" +
               "\n" +
@@ -47,9 +51,9 @@ class NotifyActor(dao: NotificationDAO, mc: MailerClient) extends Actor {
               notification.summary)
           )
           mc.send(email)
-          Logger.info("Mail sent")
+          Logger.debug("Mail sent")
           dao.sent(notification.id.getOrElse(0))
-          Logger.info("Model(notification) updated")
+          Logger.debug("Model(notification) updated")
         }
       }
   }
