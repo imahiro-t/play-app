@@ -14,7 +14,7 @@
 </ul>
 <hr>
 <p>
-@helper.form(action=routes.Application.postNotify) {
+@helper.form(action=routes.NotifyC.postNotify) {
     @(helper.inputText (
         field = myForm("db.subject"),
         '_label -> "件名"

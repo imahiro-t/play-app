@@ -5,7 +5,7 @@
 <h1>編集画面</h1>
 <p>@message</p>
 <p>
-@helper.form(action=routes.Application.postNotification(myForm("db.id").value.getOrElse("0").toLong)) {
+@helper.form(action=routes.NotificationC.postNotification(myForm("db.id").value.getOrElse("0").toLong)) {
     <input type="hidden" name="command" value="update">
     <input type="hidden" name="db.id" value="@myForm("db.id").value">
     @(helper.inputText (
