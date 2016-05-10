@@ -5,8 +5,8 @@
 # Home page
 GET     /notify                     controllers.NotifyC.getNotify
 POST    /notify                     controllers.NotifyC.postNotify
-GET     /notification/:id           controllers.NotificationC.getNotification(id: Long)
-POST    /notification/:id           controllers.NotificationC.postNotification(id: Long)
+GET     /notify/:id                 controllers.NotificationC.getNotification(id: Long)
+POST    /notify/:id                 controllers.NotificationC.postNotification(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
