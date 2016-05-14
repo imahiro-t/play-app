@@ -28,8 +28,12 @@ class NotificationC @Inject() (val messagesApi: MessagesApi, dao: NotificationDA
       },
       formValue => {
         formValue.command match {
-          case Some("update") => dao.update(formValue.notification).map(_ => Redirect("/notify"))
-          case Some("delete") => dao.delete(formValue.notification.id.getOrElse(0)).map(_ => Redirect("/notify"))
+          case Some("update") => dao.update(formValue.notification).map(_ =>
+            Redirect("/notify").flashing("message" -> ("[" + formValue.notification.subject + "]" + "を更新しました。"))
+          )
+          case Some("delete") => dao.delete(formValue.notification.id.getOrElse(0)).map(_ =>
+            Redirect("/notify").flashing("message" -> ("[" + formValue.notification.subject + "]" + "を削除しました。"))
+          )
           case _ => Future(Redirect("/notify"))
         }
       }
